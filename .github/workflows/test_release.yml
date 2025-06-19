@@ -53,12 +53,14 @@ on:
 
 jobs:
   get_manager:
+    name: Get manager
     uses: ./.github/workflows/get-manager.yml
     secrets: inherit
     with:
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
 
   build-kernel-a14-5-15:
+    name: Build kernel Android 14 5.15.*
     uses: ./.github/workflows/kernel-a14-5.15.yml
     secrets: inherit
     with:
@@ -70,6 +72,7 @@ jobs:
       use_kpm: ${{ inputs.use_kpm }}
 
   build-kernel-a14-6-1:
+    name: Build kernel Android 14 6.1.*
     uses: ./.github/workflows/kernel-a14-6.1.yml
     secrets: inherit
     with:
@@ -81,6 +84,7 @@ jobs:
       use_kpm: ${{ inputs.use_kpm }}
 
   build-kernel-a15-6-6:
+    name: Build kernel Android 15 6.6.*
     uses: ./.github/workflows/kernel-a15-6.6.yml
     secrets: inherit
     with:
@@ -92,6 +96,7 @@ jobs:
       use_kpm: ${{ inputs.use_kpm }}
 
   trigger-release:
+    name: Build release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -102,6 +107,7 @@ jobs:
         - build-kernel-a14-6-1
         - build-kernel-a15-6-6
     if: ${{ inputs.make_release }}
+
     env:
       REPO_OWNER: miuirussia
       REPO_NAME: GKI_KernelSU_SUSFS
