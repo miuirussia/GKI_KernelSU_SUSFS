@@ -3,7 +3,7 @@ name: Test release
 permissions:
   contents: write  # Allow writing to repository contents (for pushing tags)
   actions: write   # Allows triggering actions
-  
+
 on:
   workflow_dispatch:
     inputs:
@@ -13,8 +13,7 @@ on:
         type: boolean
         default: true
       kernelsu_variant:
-        # description: "选择 KernelSU | 注意:选中MKSU时为标准版"
-        description: "Variant KernelSU"
+        description: "Variant of KernelSU"
         required: true
         type: choice
         options:
@@ -24,7 +23,7 @@ on:
           - SukiSU
         default: SukiSU
       kernelsu_branch:
-        description: "KSU branch"
+        description: "Branch of KernelSU"
         required: true
         type: choice
         options:
@@ -32,70 +31,32 @@ on:
           - Dev(开发)
           - Other(其他/指定)
         default: Dev(开发)
-      # kernelsu_branch_other:
-      #   description: "如果选择了 “其他”，请指定您的自定义分支"
-      #   required: false
-      #   type: string  # This input is required if 'Other' is chosen
       version:
-        description: 'User kernel version'
+        description: 'Custom version name (e.g., characters after 5.15.167 / leave blank to use default version)'
         required: false
         type: string
       use_zram:
-        description: 'Enable ZRAM?'
+        description: 'Use ZRAM?'
         required: true
         type: boolean
         default: true
       use_kpm:
-        description: 'Enable KPM?'
+        description: 'Use KPM?'
         required: true
         type: boolean
         default: true
       get_manager:
-        description: 'Get KSU manager?'
+        description: 'Get KSU manager? (Experimental)'
         required: true
         type: boolean
-        default: false
+        default: true
+
 jobs:
   get_manager:
     uses: ./.github/workflows/get-manager.yml
     secrets: inherit
     with:
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
-
-  build-kernel-a12-5-10:
-    uses: ./.github/workflows/kernel-a12-5.10.yml
-    secrets: inherit
-    with:
-      make_release: true
-      kernelsu_variant: ${{ inputs.kernelsu_variant }}
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      version: ${{ inputs.version }}
-      use_zram: ${{ inputs.use_zram }}
-      use_kpm: ${{ inputs.use_kpm }}
-  build-kernel-a13-5-10:
-    uses: ./.github/workflows/kernel-a13-5.10.yml
-    secrets: inherit
-    with:
-      make_release: ${{ inputs.make_release }}
-      kernelsu_variant: ${{ inputs.kernelsu_variant }}
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      version: ${{ inputs.version }}
-      use_zram: ${{ inputs.use_zram }}
-      use_kpm: ${{ inputs.use_kpm }}
-
-  build-kernel-a13-5-15:
-    uses: ./.github/workflows/kernel-a13-5.15.yml
-    secrets: inherit
-    with:
-      make_release: ${{ inputs.make_release }}
-      kernelsu_variant: ${{ inputs.kernelsu_variant }}
-      kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
-      version: ${{ inputs.version }}
-      use_zram: ${{ inputs.use_zram }}
-      use_kpm: ${{ inputs.use_kpm }}
 
   build-kernel-a14-5-15:
     uses: ./.github/workflows/kernel-a14-5.15.yml
@@ -104,7 +65,6 @@ jobs:
       make_release: ${{ inputs.make_release }}
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       version: ${{ inputs.version }}
       use_zram: ${{ inputs.use_zram }}
       use_kpm: ${{ inputs.use_kpm }}
@@ -116,7 +76,6 @@ jobs:
       make_release: ${{ inputs.make_release }}
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       version: ${{ inputs.version }}
       use_zram: ${{ inputs.use_zram }}
       use_kpm: ${{ inputs.use_kpm }}
@@ -128,7 +87,6 @@ jobs:
       make_release: ${{ inputs.make_release }}
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
-      # kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       version: ${{ inputs.version }}
       use_zram: ${{ inputs.use_zram }}
       use_kpm: ${{ inputs.use_kpm }}
@@ -140,9 +98,6 @@ jobs:
       actions: write
     needs:
         - get_manager
-        - build-kernel-a12-5-10
-        - build-kernel-a13-5-10
-        - build-kernel-a13-5-15
         - build-kernel-a14-5-15
         - build-kernel-a14-6-1
         - build-kernel-a15-6-6
@@ -152,40 +107,40 @@ jobs:
       REPO_NAME: GKI_KernelSU_SUSFS
       GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
-      RELEASE_NAME: "GKI内核: ${{ inputs.kernelsu_variant == 'Next' && 'KernelSU-' || '' }} ${{ inputs.kernelsu_variant }}"
+      RELEASE_NAME: "GKI kernel: ${{ inputs.kernelsu_variant == 'Next' && 'KernelSU-' || '' }} ${{ inputs.kernelsu_variant }}"
 
       RELEASE_NOTES: |
-        此发布包含 **${{ inputs.kernelsu_variant == 'Next' && 'KernelSU' || '' }}${{ inputs.kernelsu_variant }},请注意此处的KSU版本** 、SUSFS v1.5.7 、 LZ4KD
+        This release includes ${{ inputs.kernelsu_variant == 'Next' && 'KernelSU' || '' }}${{ inputs.kernelsu_variant }}, please note the KSU version here, SUSFS v1.5.7, and LZ4KD
 
-        功能:
+        Features:
         -> ${{ inputs.kernelsu_variant == 'Next' && 'KernelSU-' || '' }}${{ inputs.kernelsu_variant }}-${{ inputs.kernelsu_branch }}
-        -> SUSFS ඞ v1.5.7
-        -> 手动Syscall Hooks,实现更好的隐藏效果
-        -> Magic Mount 支持
-        -> 简单隐藏 LineageOS 检测
-        -> 徒劳隐藏 jit-zygote-cache 检测
-        -> Wireguard 支持
-        -> BBR 支持
-        ${{ inputs.use_kpm && '-> KPM 支持' || '' }}
-        -> **LZ4KD&ONEPLUS_LZ4K**  ${{ inputs.use_zram && '支持' || '不支持' }}
-        
+        -> SUSFS v1.5.7
+        -> Manual Syscall Hooks, achieving better concealment
+        -> Magic Mount supported
+        -> Basic concealment of LineageOS detection
+        -> Futile concealment of jit-zygote-cache detection
+        -> Wireguard supported
+        -> BBR supported
+        ${{ inputs.use_kpm && '-> KPM supported' || '' }}
+        -> **LZ4KD&ONEPLUS_LZ4K**  ${{ inputs.use_zram && 'supported' || 'not supported' }}
+
         <details>
-        
-        <summary>备注:</summary>
-        - -> 在SUS SU 模式 2 下, 将显示为禁用或不兼容, 原因是(编译内核时)使用了非kprobe钩子 ,并且不再需要(非kprobe钩子)!
-        - -> 在最新版的susfs, 使用Kernel Flasher刷入AK3压缩包会变砖, 尝试 https://github.com/libxzr/HorizonKernelFlasher!
+
+        <summary>Notes:</summary>
+        - -> In SUS SU Mode 2, it will show as disabled or incompatible because non-kprobe hooks were used during kernel compilation, and these are no longer required!
+        - -> In the latest SUSFS version, using Kernel Flasher to flash an AK3 zip may brick the device. Try https://github.com/libxzr/HorizonKernelFlasher
 
         </details>
 
-        模块: 
+        Module:
         -> https://github.com/sidex15/ksu_module_susfs
-        
+
     steps:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 确定分支为 KernelSU-${{ inputs.kernelsu_variant }}
+      - name: Set branch to KernelSU-${{ inputs.kernelsu_variant }}
         if: ${{ inputs.kernelsu_branch == 'Dev(开发)' || inputs.kernelsu_variant == 'MKSU' || inputs.kernelsu_variant == 'SukiSU'  }}
         run: |
           # Determine the branch based on user input
@@ -203,7 +158,7 @@ jobs:
           # Store the selected branch in GITHUB_ENV
           echo "KSU_BRANCH=$BRANCH" >> $GITHUB_ENV
 
-      - name: 获取提交哈希值或标签并生成 URL 于 KernelSU-${{ inputs.kernelsu_variant }}
+      - name: Get the commit hash or tag and generate URL for KernelSU-${{ inputs.kernelsu_variant }}
         run: |
           if [ "${{ inputs.kernelsu_variant }}" == "Official" ]; then
             echo "This is the Official variant"
@@ -224,7 +179,7 @@ jobs:
           else
             echo "Unknown variant"
           fi
-          
+
           if [[ "${{ inputs.kernelsu_branch }}" == "Stable(标准)" && "${{ inputs.kernelsu_variant }}" != "MKSU" ]]; then
             # Fetch the latest tag
             TAG=$(git ls-remote --tags --sort=-v:refname $REPO_URL | grep -o 'refs/tags/.*' | cut -d'/' -f3 | head -n1)
@@ -252,7 +207,7 @@ jobs:
           echo "KernelSU Reference: $KSU_REF"
           echo "KernelSU URL: $KSU_URL"
 
-      - name: 获取提交哈希值并生成提交 URL
+      - name: Get the commit hash and generate the commit URL
         run: |
           GITLAB_OWNER="simonpunk"
           GITLAB_REPO="susfs4ksu"
@@ -281,41 +236,41 @@ jobs:
             fi
           done
 
-      - name: 将提交哈希值和链接添加到 `RELEASE_NOTES` 中，并将 KernelSU-Next 引用添加到 `RELEASE_NOTES` 中。
+      - name: Add the commit hash and link to RELEASE_NOTES, and include the KernelSU reference in RELEASE_NOTES.
         run: |
           if [ "${{ inputs.kernelsu_variant }}" == "Official" ]; then
             echo "This is the Official variant"
             echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
             echo "$RELEASE_NOTES" >> $GITHUB_ENV
-            echo "Official 管理器:" >> $GITHUB_ENV
+            echo "Official Manager:" >> $GITHUB_ENV
             echo "-> https://github.com/tiann/KernelSU" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           elif [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
             echo "This is the Next variant"
             echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
             echo "$RELEASE_NOTES" >> $GITHUB_ENV
-            echo "Next 管理器:" >> $GITHUB_ENV
+            echo "Next Manager:" >> $GITHUB_ENV
             echo "-> https://github.com/KernelSU-Next/KernelSU-Next" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           elif [ "${{ inputs.kernelsu_variant }}" == "MKSU" ]; then
             echo "This is the MKSU variant"
             echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
             echo "$RELEASE_NOTES" >> $GITHUB_ENV
-            echo "MKSU 管理器:" >> $GITHUB_ENV
+            echo "MKSU Manager:" >> $GITHUB_ENV
             echo "-> https://github.com/5ec1cff/KernelSU" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           elif [ "${{ inputs.kernelsu_variant }}" == "SukiSU" ]; then
             echo "This is the SukiSU variant"
             echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
             echo "$RELEASE_NOTES" >> $GITHUB_ENV
-            echo "SukiSU 管理器:" >> $GITHUB_ENV
+            echo "SukiSU Manager:" >> $GITHUB_ENV
             echo "-> https://github.com/ShirkNeko/SukiSU-Ultra" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           else
             echo "Unknown variant"
           fi
-          
-      - name: 将提交哈希值和链接添加到 `RELEASE_NOTES` 中，并将 KernelSU-Next 引用添加到 `RELEASE_NOTES` 中。
+
+      - name: Add the commit hash and its URL to RELEASE_NOTES, and include a KernelSU reference in RELEASE_NOTES.
         run: |
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
@@ -324,23 +279,19 @@ jobs:
           echo "" >> $GITHUB_ENV
           echo "<details>" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
-          echo "<summary>提交信息</summary>" >> $GITHUB_ENV
+          echo "<summary>Commit information</summary>" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
-          echo "提交的哈希值与链接(以下提交指的是,本次编译时,KSU或SUSFS所在的进度):" >> $GITHUB_ENV
-          echo "- **KernelSU为${{ inputs.kernelsu_variant }}-${{ inputs.kernelsu_branch }}** (提交): [$KSU_REF]($KSU_URL)" >> $GITHUB_ENV
-          echo "- **SUSFS4KSU** (提交):" >> $GITHUB_ENV
-          echo "  - gki-android12-5.10: [$COMMIT_HASH_gki_android12_5_10]($COMMIT_URL_gki_android12_5_10)" >> $GITHUB_ENV
-          echo "  - gki-android13-5.10: [$COMMIT_HASH_gki_android13_5_10]($COMMIT_URL_gki_android13_5_10)" >> $GITHUB_ENV
-          echo "  - gki-android13-5.15: [$COMMIT_HASH_gki_android13_5_15]($COMMIT_URL_gki_android13_5_15)" >> $GITHUB_ENV
+          echo "Commit hash and link (refers to the KSU/SUSFS progress state during this compilation)" >> $GITHUB_ENV
+          echo "- **KernelSU为${{ inputs.kernelsu_variant }}-${{ inputs.kernelsu_branch }}** (Commit): [$KSU_REF]($KSU_URL)" >> $GITHUB_ENV
+          echo "- **SUSFS4KSU** (Commit):" >> $GITHUB_ENV
           echo "  - gki-android14-5.15: [$COMMIT_HASH_gki_android14_5_15]($COMMIT_URL_gki_android14_5_15)" >> $GITHUB_ENV
           echo "  - gki-android14-6.1: [$COMMIT_HASH_gki_android14_6_1]($COMMIT_URL_gki_android14_6_1)" >> $GITHUB_ENV
           echo "  - gki-android15-6.6: [$COMMIT_HASH_gki_android15_6_6]($COMMIT_URL_gki_android15_6_6)" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "</details>" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          
-      # Get the Latest Tag from GitHub
-      - name: 生成和创建新标签
+
+      - name: Get the Latest Tag from GitHub
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN  }}
         run: |
@@ -349,26 +300,25 @@ jobs:
             if [ -z "$LATEST_TAG" ]; then
               LATEST_TAG="v1.5.5-r0"
             fi
-            
+
             NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
-            
+
             # Output the new tag to be used
             echo "New tag: $NEW_TAG"
-            
+
             # Set the new tag as an environment variable to be used in later steps
             echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
-            
+
             # Create the tag in the repository
             git tag $NEW_TAG
             git push --tags
 
-      # 下载 A12 的附件（仅当 A12 生成成功或输入为 true 或为空时）
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./downloaded-artifacts
-          
-      - name: 设定 KSU 环境变量
+
+      - name: Set KSU environment variables
         run: |
           if [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
             echo "This is the Next variant"
@@ -392,7 +342,6 @@ jobs:
             echo "Unknown variant"
           fi
 
-      # 如果 make_release 为 true，则创建 GitHub 发布并上传文件
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
@@ -401,12 +350,10 @@ jobs:
           release_name: ${{ env.RELEASE_NAME }} # Pass the RELEASE_NAME to the action
           body: ${{ env.RELEASE_NOTES }}  # Pass the RELEASE_NOTES to the action
 
-      - name: 动态上传发布资产
+      - name: Dynamically upload release assets
         run: |
-          # 先传管理器
           echo "Uploading $file..."
           gh release upload ${{ env.NEW_TAG }} "./downloaded-artifacts/*Manager*/*"
-          # 再传其他
           for file in ./downloaded-artifacts/*_kernel-*/*; do
               # Skip directories
               if [ -d "$file" ]; then
@@ -418,7 +365,6 @@ jobs:
               gh release upload ${{ env.NEW_TAG }} "$file"
           done
 
-      # Display Files Uploaded
       - name: Display Files Uploaded
         run: |
           echo "GitHub release created with the following files:"

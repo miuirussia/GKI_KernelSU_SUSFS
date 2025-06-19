@@ -1,4 +1,4 @@
-name: GetManager
+name: Get Manager
 permissions:
   contents: write  # Allow writing to repository contents (for pushing tags)
   actions: read   # Allows triggering actions
