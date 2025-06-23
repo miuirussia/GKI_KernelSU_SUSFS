@@ -330,7 +330,8 @@ jobs:
             echo "This is the Next variant"
             git clone https://github.com/KernelSU-Next/KernelSU-Next.git
             cd KernelSU-Next
-            KSU_GIT_VERSION=$(git rev-list --count HEAD)
+            KSU_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            KSU_GIT_VERSION=$(git rev-list --count $KSU_GIT_BRANCH)
             KSU_VERSION=$((10000 + KSU_GIT_VERSION + 200))
             echo $KSU_VERSION
             echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
@@ -339,7 +340,8 @@ jobs:
             echo "This is the SukiSU variant"
             git clone https://github.com/SukiSU-Ultra/SukiSU-Ultra.git
             cd SukiSU-Ultra
-            KSU_GIT_VERSION=$(git rev-list --count HEAD)
+            KSU_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            KSU_GIT_VERSION=$(git rev-list --count $KSU_GIT_BRANCH)
             KSU_VERSION=$((10000 + KSU_GIT_VERSION + 700))
             echo $KSU_VERSION
             echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
