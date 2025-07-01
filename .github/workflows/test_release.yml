@@ -118,17 +118,11 @@ jobs:
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
     env:
-      SHOULD_RUN_A12_5_10: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a12-5.10') }}
-      SHOULD_RUN_A13_5_10: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a13-5.10') }}
-      SHOULD_RUN_A13_5_15: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a13-5.15') }}
       SHOULD_RUN_A14_5_15: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a14-5.15') }}
       SHOULD_RUN_A14_6_1: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a14-6.1') }}
       SHOULD_RUN_A15_6_6: ${{ contains(github.event.inputs.kernels_to_build, 'all') || contains(github.event.inputs.kernels_to_build, 'a15-6.6') }}
       
       RESULT_GET_MANAGER: ${{ needs.get_manager.result }}
-      RESULT_A12_5_10: ${{ needs.build-kernel-a12-5-10.result }}
-      RESULT_A13_5_10: ${{ needs.build-kernel-a13-5-10.result }}
-      RESULT_A13_5_15: ${{ needs.build-kernel-a13-5-15.result }}
       RESULT_A14_5_15: ${{ needs.build-kernel-a14-5-15.result }}
       RESULT_A14_6_1: ${{ needs.build-kernel-a14-6-1.result }}
       RESULT_A15_6_6: ${{ needs.build-kernel-a15-6-6.result }}
@@ -171,9 +165,6 @@ jobs:
             fi
           }
           
-          check_kernel_job "a12-5.10" "$SHOULD_RUN_A12_5_10" "$RESULT_A12_5_10"
-          check_kernel_job "a13-5.10" "$SHOULD_RUN_A13_5_10" "$RESULT_A13_5_10"
-          check_kernel_job "a13-5.15" "$SHOULD_RUN_A13_5_15" "$RESULT_A13_5_15"
           check_kernel_job "a14-5.15" "$SHOULD_RUN_A14_5_15" "$RESULT_A14_5_15"
           check_kernel_job "a14-6.1" "$SHOULD_RUN_A14_6_1" "$RESULT_A14_6_1"
           check_kernel_job "a15-6.6" "$SHOULD_RUN_A15_6_6" "$RESULT_A15_6_6"
