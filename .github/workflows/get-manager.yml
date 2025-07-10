@@ -75,6 +75,7 @@ jobs:
           fi
 
           # 下载 Manager 文件
+          echo "$DOWNLOAD_URL"
           curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -o "${{ inputs.kernelsu_variant }}-管理器(${{ env.KSU_VERSION }}).zip" "$DOWNLOAD_URL"
           echo "Manager 文件已下载为：${{ inputs.kernelsu_variant }}-管理器(${{ env.KSU_VERSION }}).zip"
           unzip *.zip
